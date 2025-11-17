@@ -72,15 +72,19 @@ init();
 // Login
 document.getElementById("btnLogin").addEventListener("click", () => {
   const id = document.getElementById("identifiant").value.trim();
-  const user = dataUsers.find(u => u.Identifiant === id);
-  if (user) {
-    currentUser = user.Nom; // on stocke le nom
+  
+  // Recherche user par identifiant
+  const user = dataUsers.find(u => u.B === id || u.Identifiant === id); // selon ton en-tête
+  
+  if (user && (user.C === 1 || user.C === "1")) {
+    currentUser = user.A; // on stocke le nom
     document.getElementById("login-container").style.display = "none";
     document.getElementById("app").style.display = "block";
   } else {
     alert("Identifiant inconnu !");
   }
 });
+
 
 // Afficher le planning d'un jour
 function afficherJour(jour) {
@@ -130,6 +134,7 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+
 
 
 
