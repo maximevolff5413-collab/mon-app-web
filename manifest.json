@@ -1,7 +1,7 @@
 {
   "name": "Mon App Poste",
   "short_name": "Poste",
-  "start_url": "/index.html",
+  "start_url": "/mon-app-web/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1e90ff",
@@ -18,3 +18,4 @@
     }
   ]
 }
+
