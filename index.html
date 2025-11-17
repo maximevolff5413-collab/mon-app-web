@@ -1,50 +1,78 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <link rel="manifest" href="manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
-  }
-</script>
-<!-- Couleur de la barre de statut -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<!-- Nom affiché sur l'écran d'accueil -->
-<meta name="apple-mobile-web-app-title" content="Mon App Poste">
-
-<!-- Icône iOS -->
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="light">
 <head>
-  <meta charset="UTF-8">
-  <title>Accès - Mon App</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PWA Planning</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  button { margin: 5px; padding: 10px 15px; }
+  .poste { margin-top: 10px; }
+</style>
 </head>
 <body>
 
-  <h1>Connexion</h1>
+<h2>Choisis un jour :</h2>
+<div id="jours">
+  <button onclick="afficherJour('Lundi')">Lundi</button>
+  <button onclick="afficherJour('Mardi')">Mardi</button>
+  <button onclick="afficherJour('Mercredi')">Mercredi</button>
+  <button onclick="afficherJour('Jeudi')">Jeudi</button>
+  <button onclick="afficherJour('Vendredi')">Vendredi</button>
+</div>
 
-  <label>Identifiant :</label>
-  <input type="text" id="identifiant" placeholder="Votre identifiant">
+<h3 id="titreJour"></h3>
+<div id="planning"></div>
 
-  <button onclick="validerConnexion()">Entrer</button>
+<script>
+const sheetId = "ID_DU_DOC"; // remplace par ton ID
+const sheetName = "Planning";
 
-  <div id="jours" style="display:none;">
-    <h2>Choisissez un jour</h2>
-    <button onclick="ouvrirPoste('lundi')">Lundi</button>
-    <button onclick="ouvrirPoste('mardi')">Mardi</button>
-    <button onclick="ouvrirPoste('mercredi')">Mercredi</button>
-    <button onclick="ouvrirPoste('jeudi')">Jeudi</button>
-    <button onclick="ouvrirPoste('vendredi')">Vendredi</button>
-  </div>
+let dataPlanning = [];
 
+// Charger les données depuis Google Sheet
+async function chargerPlanning() {
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+  const response = await fetch(url);
+  const text = await response.text();
   
+  // Supprimer le wrapper "google.visualization.Query.setResponse(...);"
+  const json = JSON.parse(text.substr(47).slice(0, -2));
+  
+  const rows = json.table.rows;
+  const cols = json.table.cols.map(c => c.label);
+  
+  dataPlanning = rows.map(row => {
+    let obj = {};
+    row.c.forEach((cell, i) => {
+      obj[cols[i]] = cell ? cell.v : "";
+    });
+    return obj;
+  });
+}
 
+function afficherJour(jour) {
+  if (!dataPlanning.length) {
+    alert("Données non chargées encore !");
+    return;
+  }
 
+  const container = document.getElementById("planning");
+  container.innerHTML = "";
+  document.getElementById("titreJour").textContent = jour;
 
+  dataPlanning.forEach(poste => {
+    const div = document.createElement("div");
+    div.className = "poste";
+    div.textContent = `${poste["Poste"]} : ${poste[jour]}`;
+    container.appendChild(div);
+  });
+}
 
-  <script src="script.js"></script>
+// Charger les données au démarrage
+chargerPlanning();
+</script>
+
 </body>
 </html>
 
