@@ -105,29 +105,25 @@ function afficherJour(jour) {
   container.innerHTML = "";
   document.getElementById("titreJour").textContent = jour;
 
-  let postesTrouves = [];
+  // Filtrer les postes où l'utilisateur est assigné
+  const postes = dataPlanning.filter(p => p[jour] === currentUser);
 
-  // Chaque ligne = un poste
-  dataPlanning.forEach(row => {
-    const poste = row[""]; // la colonne vide correspond au nom du poste (ligne 2 et 3)
-    const nom = row[jour];
-    if(nom === currentUser) postesTrouves.push(poste);
-  });
-
-  if(postesTrouves.length === 0) {
+  if (postes.length === 0) {
     container.textContent = "Aucun poste prévu.";
   } else {
-    postesTrouves.forEach(p => {
+    postes.forEach(p => {
       const div = document.createElement("div");
       div.className = "poste";
-      div.textContent = p;
+      div.textContent = p.Poste; // affiche le nom du poste
       container.appendChild(div);
     });
   }
 
+  // Masquer les boutons des jours et afficher le bouton retour
   document.getElementById("jours").style.display = "none";
   document.getElementById("backBtn").style.display = "block";
 }
+
 
 // Retour au menu jours
 function retourMenu() {
@@ -147,6 +143,7 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+
 
 
 
