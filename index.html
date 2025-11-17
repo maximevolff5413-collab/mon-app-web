@@ -71,18 +71,31 @@ init();
 
 // Login
 document.getElementById("btnLogin").addEventListener("click", () => {
-  const id = document.getElementById("identifiant").value.trim();
+  const id = document.getElementById("identifiant").value.trim().toLowerCase();
 
-  const user = dataUsers.find(u => u.B && u.B.trim() === id);
+  // Trouver l'utilisateur correspondant à l'identifiant
+  const user = dataUsers.find(u => u.Identifiant.trim().toLowerCase() === id);
 
-  if (user && user.C && user.C.trim() === "1") {
-    currentUser = user.A.trim(); // Nom de l’utilisateur
-    document.getElementById("login-container").style.display = "none";
-    document.getElementById("app").style.display = "block";
+  if (user) {
+    console.log("Utilisateur trouvé :", user);
+
+    // Vérifie le droit d'accès
+    if (user.droit === 1 || user.droit === "1") {
+      currentUser = user.Nom.trim();
+      console.log("Connexion réussie pour :", currentUser);
+
+      // On affiche la page principale
+      document.getElementById("login-container").style.display = "none";
+      document.getElementById("app").style.display = "block";
+    } else {
+      alert("Identifiant inconnu !");
+    }
+
   } else {
     alert("Identifiant inconnu !");
   }
 });
+
 
 
 
@@ -134,6 +147,7 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+
 
 
 
