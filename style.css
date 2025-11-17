@@ -30,3 +30,8 @@ button, .day-button {
     max-width: 400px;        /* limite la largeur sur grands écrans */
 }
 
+input, textarea {
+  font-size: 16px; /* important pour iOS */
+}
+
+
