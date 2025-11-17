@@ -62,6 +62,8 @@ async function chargerSheet(sheetName) {
 async function init() {
   dataPlanning = await chargerSheet(planningSheet);
   dataUsers = await chargerSheet(userSheet);
+  console.log("Données Users :", dataUsers);
+  console.log("Données Planning :", dataPlanning);
   document.getElementById("btnLogin").disabled = false;
   document.getElementById("loading").style.display = "none";
 }
@@ -118,6 +120,7 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+
 
 
 
