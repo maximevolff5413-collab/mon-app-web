@@ -62,7 +62,7 @@ async function chargerSheet(sheetName) {
 async function init() {
   dataPlanning = await chargerSheet(planningSheet);
   dataUsers = await chargerSheet(userSheet);
-  console.log("Users:", dataUsers);
+  console.log("User:", dataUsers);
   console.log("Planning:", dataPlanning);
   document.getElementById("btnLogin").disabled = false;
   document.getElementById("loading").style.display = "none";
@@ -74,13 +74,13 @@ document.getElementById("btnLogin").addEventListener("click", () => {
   const id = document.getElementById("identifiant").value.trim().toLowerCase();
 
   // Trouver l'utilisateur correspondant à l'identifiant
-  const user = dataUsers.find(u => u.Identifiant.trim().toLowerCase() === id);
+  const user = dataUser.find(u => u.B.trim().toLowerCase() === id);
 
   if (user) {
     console.log("Utilisateur trouvé :", user);
 
     // Vérifie le droit d'accès
-    if (user.droit === 1 || user.droit === "1") {
+    if (user.C === 1 || user.C === "1") {
       currentUser = user.Nom.trim();
       console.log("Connexion réussie pour :", currentUser);
 
@@ -147,6 +147,7 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+
 
 
 
