@@ -8,73 +8,97 @@
   body { font-family: Arial, sans-serif; padding: 20px; }
   button { margin: 5px; padding: 10px 15px; }
   .poste { margin-top: 10px; }
+  #planning, #jours { margin-top: 20px; }
 </style>
 </head>
 <body>
 
-<h2>Choisis un jour :</h2>
-<div id="jours">
-  <button onclick="afficherJour('Lundi')">Lundi</button>
-  <button onclick="afficherJour('Mardi')">Mardi</button>
-  <button onclick="afficherJour('Mercredi')">Mercredi</button>
-  <button onclick="afficherJour('Jeudi')">Jeudi</button>
-  <button onclick="afficherJour('Vendredi')">Vendredi</button>
+<h2>Connexion</h2>
+<div id="login">
+  <input type="text" id="identifiant" placeholder="Entrez votre identifiant">
+  <button onclick="login()">Se connecter</button>
 </div>
 
-<h3 id="titreJour"></h3>
-<div id="planning"></div>
+<div id="app" style="display:none;">
+  <h2>Choisis un jour :</h2>
+  <div id="jours">
+    <button onclick="afficherJour('Lundi')">Lundi</button>
+    <button onclick="afficherJour('Mardi')">Mardi</button>
+    <button onclick="afficherJour('Mercredi')">Mercredi</button>
+    <button onclick="afficherJour('Jeudi')">Jeudi</button>
+    <button onclick="afficherJour('Vendredi')">Vendredi</button>
+  </div>
+
+  <h3 id="titreJour"></h3>
+  <div id="planning"></div>
+</div>
 
 <script>
 const sheetId = "1BHJ-afKT6djngOzv9fknU8jMmYrGDhsHbxw5pl8jHXE"; // remplace par ton ID
-const sheetName = "Planning";
+const planningSheet = "Planning";
+const userSheet = "User";
 
 let dataPlanning = [];
+let dataUsers = [];
+let currentUser = null;
 
-// Charger les données depuis Google Sheet
-async function chargerPlanning() {
+// Charger les données d'un onglet
+async function chargerSheet(sheetName) {
   const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
   const response = await fetch(url);
   const text = await response.text();
-  
-  // Supprimer le wrapper "google.visualization.Query.setResponse(...);"
   const json = JSON.parse(text.substr(47).slice(0, -2));
-  
   const rows = json.table.rows;
   const cols = json.table.cols.map(c => c.label);
-  
-  dataPlanning = rows.map(row => {
+  return rows.map(row => {
     let obj = {};
-    row.c.forEach((cell, i) => {
-      obj[cols[i]] = cell ? cell.v : "";
-    });
+    row.c.forEach((cell, i) => { obj[cols[i]] = cell ? cell.v : ""; });
     return obj;
   });
 }
 
-function afficherJour(jour) {
-  if (!dataPlanning.length) {
-    alert("Données non chargées encore !");
-    return;
-  }
+// Charger tous les onglets au démarrage
+async function init() {
+  dataPlanning = await chargerSheet(planningSheet);
+  dataUsers = await chargerSheet(userSheet);
+}
+init();
 
+// Vérifier l'identifiant
+function login() {
+  const id = document.getElementById("identifiant").value.trim();
+  const user = dataUsers.find(u => u.Identifiant === id);
+  if (user) {
+    currentUser = user.Nom;
+    document.getElementById("login").style.display = "none";
+    document.getElementById("app").style.display = "block";
+  } else {
+    alert("Identifiant inconnu !");
+  }
+}
+
+// Afficher les postes pour l'utilisateur connecté et le jour choisi
+function afficherJour(jour) {
+  if (!currentUser) return;
   const container = document.getElementById("planning");
   container.innerHTML = "";
   document.getElementById("titreJour").textContent = jour;
 
   dataPlanning.forEach(poste => {
-    const div = document.createElement("div");
-    div.className = "poste";
-    div.textContent = `${poste["Poste"]} : ${poste[jour]}`;
-    container.appendChild(div);
+    if (poste[jour] === currentUser) {
+      const div = document.createElement("div");
+      div.className = "poste";
+      div.textContent = `${poste["Poste"]}`;
+      container.appendChild(div);
+    }
   });
 }
-
-// Charger les données au démarrage
-chargerPlanning();
 </script>
 
 </body>
 </html>
+
+
 
 
 
