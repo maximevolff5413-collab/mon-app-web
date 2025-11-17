@@ -1,7 +1,7 @@
 {
   "name": "Mon App Poste",
   "short_name": "Poste",
-  "start_url": "/mon-app-web/index.html",
+  "start_url": "https://maximevolff5413-collab.github.io/mon-app-web/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1e90ff",
@@ -18,4 +18,5 @@
     }
   ]
 }
+
 
