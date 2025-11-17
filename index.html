@@ -35,12 +35,12 @@
 </div>
 
 <script>
-const sheetId = "1BHJ-afKT6djngOzv9fknU8jMmYrGDhsHbxw5pl8jHXE"; // remplace par ton ID
+const sheetId = "1BHJ-afKT6djngOzv9fknU8jMmYrGDhsHbxw5pl8jHXE"; // ID de ton sheet
 const planningSheet = "Planning";
 const userSheet = "User";
 
-let dataPlanning = [];
-let dataUsers = [];
+let dataPlanning = []; // tableau des postes
+let dataUsers = [];    // tableau des utilisateurs
 let currentUser = null;
 
 // Charger les données depuis Google Sheets
@@ -58,12 +58,12 @@ async function chargerSheet(sheetName) {
   });
 }
 
-// Init
+// Initialisation
 async function init() {
   dataPlanning = await chargerSheet(planningSheet);
   dataUsers = await chargerSheet(userSheet);
-  console.log("Données Users :", dataUsers);
-  console.log("Données Planning :", dataPlanning);
+  console.log("Users:", dataUsers);
+  console.log("Planning:", dataPlanning);
   document.getElementById("btnLogin").disabled = false;
   document.getElementById("loading").style.display = "none";
 }
@@ -74,7 +74,7 @@ document.getElementById("btnLogin").addEventListener("click", () => {
   const id = document.getElementById("identifiant").value.trim();
   const user = dataUsers.find(u => u.Identifiant === id);
   if (user) {
-    currentUser = user.Nom;
+    currentUser = user.Nom; // on stocke le nom
     document.getElementById("login-container").style.display = "none";
     document.getElementById("app").style.display = "block";
   } else {
@@ -82,21 +82,31 @@ document.getElementById("btnLogin").addEventListener("click", () => {
   }
 });
 
-// Afficher jour
+// Afficher le planning d'un jour
 function afficherJour(jour) {
   const container = document.getElementById("planning");
   container.innerHTML = "";
   document.getElementById("titreJour").textContent = jour;
 
-  const postes = dataPlanning.filter(p => p[jour] === currentUser);
-  if(postes.length === 0) container.textContent = "Aucun poste prévu.";
+  let postesTrouves = [];
 
-  postes.forEach(poste => {
-    const div = document.createElement("div");
-    div.className = "poste";
-    div.textContent = poste["Poste"];
-    container.appendChild(div);
+  // Chaque ligne = un poste
+  dataPlanning.forEach(row => {
+    const poste = row[""]; // la colonne vide correspond au nom du poste (ligne 2 et 3)
+    const nom = row[jour];
+    if(nom === currentUser) postesTrouves.push(poste);
   });
+
+  if(postesTrouves.length === 0) {
+    container.textContent = "Aucun poste prévu.";
+  } else {
+    postesTrouves.forEach(p => {
+      const div = document.createElement("div");
+      div.className = "poste";
+      div.textContent = p;
+      container.appendChild(div);
+    });
+  }
 
   document.getElementById("jours").style.display = "none";
   document.getElementById("backBtn").style.display = "block";
@@ -110,7 +120,7 @@ function retourMenu() {
   document.getElementById("backBtn").style.display = "none";
 }
 
-// Service worker pour PWA
+// Service Worker PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js');
@@ -120,6 +130,7 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+
 
 
 
