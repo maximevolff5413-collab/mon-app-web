@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PWA Planning</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+
+<div id="login-container">
+  <h2>Connexion</h2>
+  <input type="text" id="identifiant" placeholder="Entrez votre identifiant">
+  <button id="btnLogin" disabled>Se connecter</button>
+  <p id="loading">Chargement des données...</p>
+</div>
+
+<div id="app" style="display:none;">
+  <h2>Choisis un jour :</h2>
+  <div id="jours">
+    <button onclick="afficherJour('Lundi')">Lundi</button>
+    <button onclick="afficherJour('Mardi')">Mardi</button>
+    <button onclick="afficherJour('Mercredi')">Mercredi</button>
+    <button onclick="afficherJour('Jeudi')">Jeudi</button>
+    <button onclick="afficherJour('Vendredi')">Vendredi</button>
+  </div>
+
+  <h3 id="titreJour"></h3>
+  <div id="planning"></div>
+  <button id="backBtn" onclick="retourMenu()" style="display:none;">← Retour</button>
+</div>
+
+<script>
+const sheetId = "ID_DU_DOC"; // remplace par ton ID
+const planningSheet = "Planning";
+const userSheet = "User";
+
+let dataPlanning = [];
+let dataUsers = [];
+let currentUser = null;
+
+// Charger les données depuis Google Sheets
+async function chargerSheet(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+  const response = await fetch(url);
+  const text = await response.text();
+  const json = JSON.parse(text.substr(47).slice(0, -2));
+  const rows = json.table.rows;
+  const cols = json.table.cols.map(c => c.label);
+  return rows.map(row => {
+    let obj = {};
+    row.c.forEach((cell, i) => { obj[cols[i]] = cell ? cell.v : ""; });
+    return obj;
+  });
+}
+
+// Init
+async function init() {
+  dataPlanning = await chargerSheet(planningSheet);
+  dataUsers = await chargerSheet(userSheet);
+  document.getElementById("btnLogin").disabled = false;
+  document.getElementById("loading").style.display = "none";
+}
+init();
+
+// Login
+document.getElementById("btnLogin").addEventListener("click", () => {
+  const id = document.getElementById("identifiant").value.trim();
+  const user = dataUsers.find(u => u.Identifiant === id);
+  if (user) {
+    currentUser = user.Nom;
+    document.getElementById("login-container").style.display = "none";
+    document.getElementById("app").style.display = "block";
+  } else {
+    alert("Identifiant inconnu !");
+  }
+});
+
+// Afficher jour
+function afficherJour(jour) {
+  const container = document.getElementById("planning");
+  container.innerHTML = "";
+  document.getElementById("titreJour").textContent = jour;
+
+  const postes = dataPlanning.filter(p => p[jour] === currentUser);
+  if(postes.length === 0) container.textContent = "Aucun poste prévu.";
+
+  postes.forEach(poste => {
+    const div = document.createElement("div");
+    div.className = "poste";
+    div.textContent = poste["Poste"];
+    container.appendChild(div);
+  });
+
+  document.getElementById("jours").style.display = "none";
+  document.getElementById("backBtn").style.display = "block";
+}
+
+// Retour au menu jours
+function retourMenu() {
+  document.getElementById("planning").innerHTML = "";
+  document.getElementById("titreJour").textContent = "";
+  document.getElementById("jours").style.display = "block";
+  document.getElementById("backBtn").style.display = "none";
+}
+
+// Service worker pour PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js');
+  });
+}
+</script>
+
+</body>
+</html>
+
+
