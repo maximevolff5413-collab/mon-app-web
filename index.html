@@ -72,18 +72,18 @@ init();
 // Login
 document.getElementById("btnLogin").addEventListener("click", () => {
   const id = document.getElementById("identifiant").value.trim();
-  
-  // Recherche user par identifiant
-  const user = dataUsers.find(u => u.B === id || u.Identifiant === id); // selon ton en-tête
-  
-  if (user && (user.C === 1 || user.C === "1")) {
-    currentUser = user.A; // on stocke le nom
+
+  const user = dataUsers.find(u => u.B && u.B.trim() === id);
+
+  if (user && user.C && user.C.trim() === "1") {
+    currentUser = user.A.trim(); // Nom de l’utilisateur
     document.getElementById("login-container").style.display = "none";
     document.getElementById("app").style.display = "block";
   } else {
     alert("Identifiant inconnu !");
   }
 });
+
 
 
 // Afficher le planning d'un jour
@@ -134,6 +134,7 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+
 
 
 
